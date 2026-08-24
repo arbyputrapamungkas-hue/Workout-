@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerak & Gizi — Latihan dan Menu Rumahan</title>
+<meta name="theme-color" content="#3F5C42">
+<link rel="manifest" href="manifest.json">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+  :root{
+    --ink: #1F2A22;
+    --ink-soft: #4B584E;
+    --paper: #EEF0E7;
+    --card: #FBFBF7;
+    --sage: #5C7F5E;
+    --sage-dark: #3F5C42;
+    --mango: #E2823D;
+    --berry: #A63446;
+    --line: #D9DCCE;
+    --radius: 18px;
+  }
+
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  body{
+    margin:0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Work Sans', sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page{ max-width: 720px; margin: 0 auto; padding: 28px 20px 60px; }
+
+  h1,h2,h3{ font-family: 'Archivo Black', sans-serif; font-weight: 400; letter-spacing: -0.01em; margin: 0; }
+  .mono{ font-family: 'IBM Plex Mono', monospace; }
+
+  /* ---------- HERO ---------- */
+  .eyebrow{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sage-dark);
+    margin-bottom: 10px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .eyebrow::before{ content:""; width:8px; height:8px; border-radius:50%; background: var(--mango); display:inline-block; }
+  .hero h1{ font-size: 34px; line-height: 1.12; color: var(--ink); }
+  .hero p{ margin-top: 12px; color: var(--ink-soft); font-size: 15.5px; max-width: 46ch; }
+
+  /* ---------- CARD ---------- */
+  .card{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-top: 22px;
+  }
+  .card h2{ font-size: 19px; margin-bottom: 4px; }
+  .card .hint{ color: var(--ink-soft); font-size: 13.5px; margin-bottom: 18px; }
+
+  /* ---------- FORM ---------- */
+  .field{ margin-bottom: 16px; }
+  .field label{
+    display:block; font-size: 12.5px; font-weight:600; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--ink-soft); margin-bottom: 6px;
+  }
+  .field input[type="text"], .field input[type="number"]{
+    width:100%; padding: 11px 13px; border-radius: 10px;
+    border: 1.5px solid var(--line); background: #fff; font-size: 15px;
+    font-family: inherit; color: var(--ink);
+  }
+  .field input:focus-visible{ outline: 2.5px solid var(--sage); outline-offset: 1px; }
+  .row2{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .pillset{ display:flex; flex-wrap:wrap; gap: 8px; }
+  .pill{
+    border: 1.5px solid var(--line); background:#fff; color: var(--ink-soft);
+    padding: 9px 15px; border-radius: 999px; font-size: 14px; font-weight: 600;
+    cursor:pointer; transition: all .15s ease; font-family: inherit;
+  }
+  .pill:hover{ border-color: var(--sage); }
+  .pill:focus-visible{ outline: 2.5px solid var(--sage); outline-offset: 1px; }
+  .pill.active{ background: var(--sage); border-color: var(--sage); color: #fff; }
+  .pill.active.goal-naik{ background: var(--mango); border-color: var(--mango); }
+
+  .btn-primary{
+    width:100%; margin-top: 6px; padding: 14px; border:none; border-radius: 12px;
+    background: var(--sage-dark); color:#fff; font-family:'Archivo Black', sans-serif;
+    font-size: 15px; letter-spacing: 0.02em; cursor:pointer; transition: transform .12s ease, background .15s;
+  }
+  .btn-primary:hover{ background: var(--sage); }
+  .btn-primary:active{ transform: scale(0.98); }
+  .btn-primary:focus-visible{ outline: 2.5px solid var(--berry); outline-offset: 2px; }
+  .error-msg{ color: var(--berry); font-size: 13px; margin-top: 8px; display:none; }
+  .storage-hint{ font-size: 12px; color: var(--ink-soft); margin-top: 10px; text-align:center; }
+
+  /* ---------- RESULTS ---------- */
+  #results{ display:none; }
+  .greet{ font-size: 22px; margin-top: 30px; }
+  .greet span{ color: var(--sage-dark); }
+
+  .stat-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+  .stat{
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px;
+  }
+  .stat .num{ font-family:'IBM Plex Mono', monospace; font-size: 26px; font-weight:600; }
+  .stat .cap{ font-size: 12px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; }
+
+  /* gauge */
+  .gauge-wrap{ margin-top: 18px; }
+  .gauge-track{
+    position: relative; height: 14px; border-radius: 999px; overflow: visible;
+    background: linear-gradient(to right, #8FB3E0 0 22%, var(--sage) 22% 47%, var(--mango) 47% 70%, var(--berry) 70% 100%);
+  }
+  .gauge-pin{
+    position:absolute; top:-9px; width: 4px; height: 32px; background: var(--ink);
+    border-radius: 3px; left: 0%; transition: left .5s cubic-bezier(.2,.8,.2,1);
+  }
+  .gauge-pin::after{
+    content: attr(data-val); position:absolute; top:-26px; left:50%; transform: translateX(-50%);
+    font-family:'IBM Plex Mono',monospace; font-size: 12.5px; font-weight:600; white-space:nowrap;
+  }
+  .gauge-labels{ display:flex; justify-content: space-between; font-size: 11px; color: var(--ink-soft); margin-top: 20px; }
+
+  /* day tabs */
+  .day-strip{ display:flex; gap: 6px; margin-top: 26px; overflow-x:auto; padding-bottom: 4px; }
+  .day-pill{
+    flex: 0 0 auto; border:1.5px solid var(--line); background:#fff; padding: 8px 12px; border-radius: 10px;
+    font-family:'IBM Plex Mono', monospace; font-size: 13px; font-weight:600; color: var(--ink-soft); cursor:pointer;
+  }
+  .day-pill.active{ background: var(--ink); border-color: var(--ink); color:#fff; }
+  .day-pill:focus-visible{ outline: 2.5px solid var(--sage); outline-offset: 1px; }
+
+  .plan-grid{ display:grid; grid-template-columns: 1fr; gap: 14px; margin-top: 14px; }
+  .plan-card{ background: var(--card); border:1px solid var(--line); border-radius: var(--radius); padding: 18px; }
+  .plan-card-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 10px; }
+  .plan-card .tag{
+    font-family:'IBM Plex Mono', monospace; font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em;
+    color: var(--sage-dark);
+  }
+  .plan-card.meal .tag{ color: var(--mango); }
+  .plan-card h3{ font-size: 17px; margin: 2px 0 10px; }
+  .reset-link{
+    background:none; border:none; font-family: inherit; font-size: 12px; color: var(--ink-soft);
+    text-decoration: underline; cursor:pointer; padding:0;
+  }
+  .reset-link:focus-visible{ outline: 2px solid var(--sage); }
+
+  .progress-line{ font-size: 12.5px; color: var(--ink-soft); margin-bottom: 10px; }
+  .progress-line b{ color: var(--ink); }
+
+  /* checklist rows */
+  .check-row{
+    display:flex; align-items:center; gap: 10px; padding: 9px 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  .check-row:last-child{ border-bottom:none; }
+  .check-row input[type="checkbox"]{
+    width: 19px; height: 19px; accent-color: var(--sage-dark); flex-shrink:0; cursor:pointer;
+  }
+  .check-row .txt{ font-size: 14.5px; color: var(--ink-soft); }
+  .check-row.done .txt{ text-decoration: line-through; color: #8B968C; }
+
+  /* meal rows with icon + kcal */
+  .meal-row{ align-items:flex-start; }
+  .meal-icon{
+    flex-shrink:0; width: 34px; height:34px; border-radius: 10px; background:#fff;
+    border: 1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size: 17px;
+  }
+  .meal-body{ flex:1; }
+  .meal-time{ font-family:'IBM Plex Mono', monospace; font-size: 11px; text-transform:uppercase; letter-spacing:.06em; color: var(--mango); display:block; }
+  .meal-desc{ font-size: 14.5px; color: var(--ink-soft); }
+  .meal-row.done .meal-desc{ text-decoration: line-through; color:#8B968C; }
+  .meal-kcal{
+    flex-shrink:0; font-family:'IBM Plex Mono', monospace; font-size: 12.5px; font-weight:600;
+    color: var(--sage-dark); background:#fff; border:1px solid var(--line); padding: 3px 8px; border-radius: 999px;
+  }
+
+  .kcal-summary{ margin-bottom: 14px; }
+  .kcal-summary-top{ display:flex; justify-content:space-between; align-items:baseline; font-size: 13px; color: var(--ink-soft); margin-bottom: 6px; }
+  .kcal-summary-top b{ font-family:'IBM Plex Mono', monospace; color: var(--ink); font-size: 15px; }
+  .kcal-bar{ height: 8px; border-radius: 999px; background: #E4E7DA; overflow:hidden; }
+  .kcal-bar-fill{ height:100%; background: var(--mango); border-radius:999px; width:0%; transition: width .4s ease; }
+
+  .note{ margin-top: 20px; font-size: 12.5px; color: var(--ink-soft); border-top: 1px solid var(--line); padding-top: 14px; }
+
+  @media (max-width: 480px){
+    .hero h1{ font-size: 27px; }
+    .row2{ grid-template-columns: 1fr; }
+    .stat-grid{ grid-template-columns: 1fr 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .gauge-pin{ transition:none; }
+    .kcal-bar-fill{ transition:none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="hero">
+    <div class="eyebrow">Gerak Rumah · Meja Makan</div>
+    <h1>Latihan dan menu harian yang ngikutin targetmu.</h1>
+    <p>Isi data badanmu sekali, langsung dapat kalkulasi berat ideal, kalori harian, jadwal olahraga rumahan 7 hari, dan menu makan. Centang setiap latihan atau menu yang sudah kamu jalani, dan semuanya akan tersimpan otomatis di perangkat ini.</p>
+  </header>
+
+  <section class="card" id="formCard">
+    <h2>Data badanmu</h2>
+    <p class="hint">Semua dihitung dan disimpan langsung di perangkatmu, tidak dikirim ke mana pun.</p>
+
+    <div class="field">
+      <label for="nama">Nama</label>
+      <input type="text" id="nama" placeholder="Contoh: Dinda">
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label for="umur">Umur (tahun)</label>
+        <input type="number" id="umur" placeholder="25" min="10" max="90">
+      </div>
+      <div class="field">
+        <label>Jenis kelamin</label>
+        <div class="pillset" id="genderSet">
+          <button type="button" class="pill active" data-val="L">Laki-laki</button>
+          <button type="button" class="pill" data-val="P">Perempuan</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label for="berat">Berat badan (kg)</label>
+        <input type="number" id="berat" placeholder="65" min="20" max="300">
+      </div>
+      <div class="field">
+        <label for="tinggi">Tinggi badan (cm)</label>
+        <input type="number" id="tinggi" placeholder="165" min="100" max="230">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Tingkat aktivitas harian</label>
+      <div class="pillset" id="activitySet">
+        <button type="button" class="pill active" data-val="1.2">Jarang berolahraga, kerja lebih banyak duduk</button>
+        <button type="button" class="pill" data-val="1.375">Olahraga ringan, sekitar 1 sampai 3 kali seminggu</button>
+        <button type="button" class="pill" data-val="1.55">Olahraga sedang, sekitar 3 sampai 5 kali seminggu</button>
+        <button type="button" class="pill" data-val="1.725">Olahraga berat, hampir setiap hari dalam seminggu</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Tujuanmu</label>
+      <div class="pillset" id="goalSet">
+        <button type="button" class="pill active" data-val="turun">Turunkan berat badan</button>
+        <button type="button" class="pill goal-naik" data-val="naik">Naikkan berat badan</button>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="btnHitung">Buat Rencanaku →</button>
+    <div class="error-msg" id="errMsg">Lengkapi umur, berat, dan tinggi dengan angka yang wajar ya.</div>
+    <div class="storage-hint" id="storageHint"></div>
+  </section>
+
+  <section id="results">
+    <h2 class="greet">Rencana untuk <span id="namaOut">kamu</span></h2>
+
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="num mono" id="bmiVal">–</div>
+        <div class="cap" id="bmiCat">BMI</div>
+      </div>
+      <div class="stat">
+        <div class="num mono" id="idealVal">–</div>
+        <div class="cap">Berat ideal (kg)</div>
+      </div>
+      <div class="stat">
+        <div class="num mono" id="tdeeVal">–</div>
+        <div class="cap">Kebutuhan kalori/hari</div>
+      </div>
+      <div class="stat">
+        <div class="num mono" id="targetVal">–</div>
+        <div class="cap" id="targetCap">Target kalori/hari</div>
+      </div>
+    </div>
+
+    <div class="gauge-wrap">
+      <div class="gauge-track">
+        <div class="gauge-pin" id="gaugePin" data-val=""></div>
+      </div>
+      <div class="gauge-labels">
+        <span>Kurus</span><span>Ideal</span><span>Gemuk</span><span>Obesitas</span>
+      </div>
+    </div>
+
+    <div class="day-strip" id="dayStrip"></div>
+
+    <div class="plan-grid">
+      <div class="plan-card workout">
+        <div class="plan-card-head">
+          <div class="tag" id="workoutDurTag">Latihan</div>
+          <button type="button" class="reset-link" id="resetWorkout">Hapus centang</button>
+        </div>
+        <h3 id="workoutTitle">–</h3>
+        <div class="progress-line" id="workoutProgress"></div>
+        <div id="workoutList"></div>
+      </div>
+      <div class="plan-card meal">
+        <div class="plan-card-head">
+          <div class="tag">Menu makan</div>
+          <button type="button" class="reset-link" id="resetMeal">Hapus centang</button>
+        </div>
+        <div class="kcal-summary">
+          <div class="kcal-summary-top">
+            <span>Kalori yang sudah tercatat hari ini</span>
+            <span><b id="kcalDone">0</b> / <span id="kcalTarget">0</span> kkal</span>
+          </div>
+          <div class="kcal-bar"><div class="kcal-bar-fill" id="kcalBarFill"></div></div>
+        </div>
+        <div id="mealList"></div>
+      </div>
+    </div>
+
+    <p class="note">Ini panduan umum berbasis rumus estimasi (Mifflin-St Jeor) dan perkiraan kalori per porsi, bukan pengganti saran dokter atau ahli gizi. Kalau punya kondisi kesehatan khusus, konsultasikan dulu sebelum mengubah pola makan atau olahraga secara drastis.</p>
+  </section>
+
+</div>
+
+<script>
+const DAYS = ["Senin","Selasa","Rabu","Kamis","Jumat","Sabtu","Minggu"];
+const MEAL_TIMES = ["Sarapan","Camilan Pagi","Makan Siang","Camilan Sore","Makan Malam"];
+const MEAL_ICON = { "Sarapan":"🥣", "Camilan Pagi":"🍎", "Makan Siang":"🍚", "Camilan Sore":"🥛", "Makan Malam":"🍲" };
+
+const KCAL = {
+  turun: { "Sarapan":300, "Camilan Pagi":100, "Makan Siang":420, "Camilan Sore":130, "Makan Malam":380 },
+  naik:  { "Sarapan":480, "Camilan Pagi":220, "Makan Siang":580, "Camilan Sore":270, "Makan Malam":530 },
+};
+
+const WORKOUTS = {
+  turun: {
+    Senin:   { dur:"Sekitar 20 menit, latihan kardio cepat (HIIT)", items:["Lakukan gerakan jumping jack selama 30 detik, ulangi sampai 3 set","Lakukan gerakan mengangkat lutut tinggi (high knees) selama 30 detik, ulangi sampai 3 set","Lakukan gerakan mountain climber selama 30 detik, ulangi sampai 3 set","Istirahat selama 1 menit di antara setiap set"] },
+    Selasa:  { dur:"Sekitar 25 menit, latihan seluruh badan", items:["Lakukan gerakan squat sebanyak 15 kali, ulangi sampai 3 set","Lakukan gerakan push up sebanyak 10 kali, ulangi sampai 3 set","Tahan posisi plank selama 20 detik, ulangi sampai 3 set","Lakukan gerakan lunges sebanyak 15 kali untuk setiap kaki, ulangi sampai 3 set"] },
+    Rabu:    { dur:"Sekitar 30 menit, latihan kardio ringan", items:["Jalan cepat atau joging di tempat selama 30 menit","Tutup dengan peregangan otot selama 5 menit"] },
+    Kamis:   { dur:"Sekitar 20 menit, latihan otot perut", items:["Lakukan gerakan sit up sebanyak 20 kali, ulangi sampai 3 set","Lakukan gerakan mengangkat kaki (leg raise) sebanyak 15 kali, ulangi sampai 3 set","Tahan posisi plank selama 30 detik, ulangi sampai 3 set","Lakukan gerakan bicycle crunch sebanyak 20 kali, ulangi sampai 3 set"] },
+    Jumat:   { dur:"Sekitar 25 menit, latihan kardio cepat dan kekuatan", items:["Lakukan gerakan burpee sebanyak 10 kali, ulangi sampai 4 set","Lakukan gerakan squat jump sebanyak 10 kali, ulangi sampai 4 set","Lakukan gerakan push up sebanyak 10 kali, ulangi sampai 4 set","Istirahat selama 1 menit di antara setiap set"] },
+    Sabtu:   { dur:"Sekitar 35 menit, hari pemulihan", items:["Lakukan yoga atau peregangan aktif","Fokuskan gerakan pada pinggang, paha, dan bahu"] },
+    Minggu:  { dur:"Hari istirahat", items:["Istirahat total, atau jalan santai selama 20 sampai 30 menit"] },
+  },
+  naik: {
+    Senin:   { dur:"Sekitar 25 menit, latihan dada dan trisep", items:["Lakukan gerakan push up sebanyak 12 kali, ulangi sampai 4 set","Lakukan gerakan diamond push up sebanyak 10 kali, ulangi sampai 4 set","Lakukan gerakan dips menggunakan kursi sebanyak 15 kali, ulangi sampai 3 set"] },
+    Selasa:  { dur:"Sekitar 25 menit, latihan otot kaki", items:["Lakukan gerakan squat sebanyak 15 kali, ulangi sampai 4 set","Lakukan gerakan lunges sebanyak 12 kali untuk setiap kaki, ulangi sampai 4 set","Lakukan gerakan calf raise sebanyak 20 kali, ulangi sampai 3 set","Tahan posisi wall sit selama 30 detik, ulangi sampai 3 set"] },
+    Rabu:    { dur:"Sekitar 20 menit, hari istirahat aktif", items:["Lakukan peregangan ringan untuk seluruh tubuh"] },
+    Kamis:   { dur:"Sekitar 25 menit, latihan punggung dan bahu", items:["Lakukan gerakan superman sebanyak 10 kali, ulangi sampai 4 set","Lakukan gerakan pike push up sebanyak 12 kali, ulangi sampai 4 set","Lakukan gerakan reverse snow angel sebanyak 15 kali, ulangi sampai 3 set"] },
+    Jumat:   { dur:"Sekitar 30 menit, latihan kekuatan seluruh badan", items:["Lakukan gerakan squat sebanyak 15 kali, ulangi sampai 4 set","Lakukan gerakan push up sebanyak 12 kali, ulangi sampai 4 set","Lakukan gerakan burpee dengan tempo lambat sebanyak 10 kali, ulangi sampai 3 set","Tahan posisi plank selama 30 detik, ulangi sampai 3 set"] },
+    Sabtu:   { dur:"Sekitar 20 menit, latihan otot perut", items:["Lakukan gerakan sit up sebanyak 20 kali, ulangi sampai 3 set","Lakukan gerakan mengangkat kaki (leg raise) sebanyak 15 kali, ulangi sampai 3 set","Tahan posisi plank selama 30 detik, ulangi sampai 3 set"] },
+    Minggu:  { dur:"Hari istirahat", items:["Istirahat total, karena hari ini penting untuk pertumbuhan otot"] },
+  }
+};
+
+const MEALS = {
+  turun: {
+    Senin:  {Sarapan:"Oatmeal, dengan potongan buah segar dan 2 butir putih telur rebus", "Camilan Pagi":"Satu buah apel", "Makan Siang":"Nasi merah, dengan dada ayam panggang dan tumis kangkung", "Camilan Sore":"Yogurt tawar rendah lemak", "Makan Malam":"Ikan kukus, dengan sayur rebus dan sedikit nasi merah"},
+    Selasa: {Sarapan:"Roti gandum, dengan telur rebus dan irisan tomat", "Camilan Pagi":"Segenggam kacang almond", "Makan Siang":"Nasi merah, dengan tumis tahu dan tempe serta sayur bening", "Camilan Sore":"Edamame rebus", "Makan Malam":"Dada ayam panggang, dengan salad timun dan tomat"},
+    Rabu:   {Sarapan:"Smoothie bayam, pisang, dan susu rendah lemak", "Camilan Pagi":"Satu buah pir", "Makan Siang":"Nasi merah, dengan ikan bakar dan capcay", "Camilan Sore":"Satu butir telur rebus", "Makan Malam":"Sup ayam bening, dengan sayuran"},
+    Kamis:  {Sarapan:"Oatmeal, dengan biji chia dan potongan mangga", "Camilan Pagi":"Segenggam kacang edamame", "Makan Siang":"Nasi merah, dengan tumis udang dan brokoli", "Camilan Sore":"Yogurt tawar dengan sedikit madu", "Makan Malam":"Tahu dan tempe panggang, dengan lalapan"},
+    Jumat:  {Sarapan:"Telur orak-arik, dengan roti gandum tipis", "Camilan Pagi":"Satu buah jeruk", "Makan Siang":"Nasi merah, dengan ayam suwir dan sayur asem", "Camilan Sore":"Segenggam kacang almond", "Makan Malam":"Ikan panggang, dengan tumis buncis"},
+    Sabtu:  {Sarapan:"Overnight oat, dengan potongan stroberi", "Camilan Pagi":"Wortel dan timun yang dipotong-potong", "Makan Siang":"Nasi merah, dengan rendang tanpa santan kental dan sayur", "Camilan Sore":"Yogurt tawar", "Makan Malam":"Sup tahu, dengan sayuran hijau"},
+    Minggu: {Sarapan:"Bubur oat, dengan telur rebus", "Camilan Pagi":"Satu buah apel", "Makan Siang":"Nasi merah, dengan ikan asam manis dan tumis sayur", "Camilan Sore":"Edamame rebus", "Makan Malam":"Salad ayam panggang, dengan saus perasan lemon"},
+  },
+  naik: {
+    Senin:  {Sarapan:"Roti gandum dengan selai kacang, telur orak-arik, dan susu full cream", "Camilan Pagi":"Pisang, dengan segenggam kacang mete", "Makan Siang":"Nasi putih, dengan ayam, tempe, dan sayur", "Camilan Sore":"Smoothie pisang, oat, madu, dan susu", "Makan Malam":"Nasi putih, dengan ikan, telur, dan alpukat"},
+    Selasa: {Sarapan:"Nasi uduk, dengan telur dan ayam suwir", "Camilan Pagi":"Roti dengan selai kacang", "Makan Siang":"Nasi putih, dengan rendang, tahu dan tempe, serta sayur", "Camilan Sore":"Yogurt full cream dengan granola", "Makan Malam":"Nasi putih, dengan ikan bakar, tumis kangkung, dan sedikit minyak zaitun"},
+    Rabu:   {Sarapan:"Pancake gandum, dengan madu dan susu full cream", "Camilan Pagi":"Kacang-kacangan campur", "Makan Siang":"Nasi putih, dengan daging sapi, tumis sayur, dan tahu", "Camilan Sore":"Alpukat kocok dengan susu", "Makan Malam":"Nasi putih, dengan ayam goreng tepung secukupnya dan sayur"},
+    Kamis:  {Sarapan:"Telur dadar dengan keju, roti, dan susu", "Camilan Pagi":"Pisang dengan selai kacang", "Makan Siang":"Nasi putih, dengan ikan goreng, tempe, dan sayur bersantan tipis", "Camilan Sore":"Smoothie mangga dengan yogurt", "Makan Malam":"Nasi putih, dengan daging, telur ceplok, dan sayur"},
+    Jumat:  {Sarapan:"Nasi goreng, dengan telur dan ayam suwir", "Camilan Pagi":"Roti dengan keju dan susu", "Makan Siang":"Nasi putih, dengan ayam, tahu dan tempe, serta sayur", "Camilan Sore":"Kacang almond dengan kurma", "Makan Malam":"Nasi putih, dengan ikan, alpukat, dan sayur"},
+    Sabtu:  {Sarapan:"Roti lapis telur, dengan keju dan susu full cream", "Camilan Pagi":"Smoothie pisang dan oat", "Makan Siang":"Nasi putih, dengan rendang, sayur, dan tahu", "Camilan Sore":"Yogurt dengan granola dan madu", "Makan Malam":"Nasi putih, dengan daging, telur, dan sayur"},
+    Minggu: {Sarapan:"Bubur ayam, dengan telur dan kerupuk", "Camilan Pagi":"Pisang dengan kacang mete", "Makan Siang":"Nasi putih, dengan ayam, tempe, dan sayur bersantan tipis", "Camilan Sore":"Susu full cream dengan roti", "Makan Malam":"Nasi putih, dengan ikan, alpukat, dan sayur"},
+  }
+};
+
+let state = { gender:"L", activity:1.2, goal:"turun", day: DAYS[0], targetKcal: 0 };
+
+// ---------- storage helpers (localStorage, tersimpan langsung di HP/browser) ----------
+const STORAGE_PREFIX = "gerakgizi:";
+async function storageGet(key){
+  try{
+    const raw = localStorage.getItem(STORAGE_PREFIX + key);
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+async function storageSet(key, obj){
+  try{ localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(obj)); }
+  catch(e){ /* penyimpanan gagal (mis. mode private), aplikasi tetap jalan tanpa menyimpan */ }
+}
+async function storageDelete(key){
+  try{ localStorage.removeItem(STORAGE_PREFIX + key); } catch(e){}
+}
+function progressKey(goal, day){ return "progress:" + goal + ":" + day; }
+
+// ---------- pill sets ----------
+function bindPillSet(id, key, isNumber, onChange){
+  const set = document.getElementById(id);
+  set.querySelectorAll(".pill").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      set.querySelectorAll(".pill").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      state[key] = isNumber ? parseFloat(btn.dataset.val) : btn.dataset.val;
+      if(onChange) onChange();
+    });
+  });
+}
+function setActivePill(id, val){
+  const set = document.getElementById(id);
+  set.querySelectorAll(".pill").forEach(b=>{
+    b.classList.toggle("active", b.dataset.val === String(val));
+  });
+}
+bindPillSet("genderSet","gender",false);
+bindPillSet("activitySet","activity",true);
+bindPillSet("goalSet","goal",false, ()=>{ if(document.getElementById("results").style.display==="block") renderDay(); });
+
+// ---------- day strip ----------
+const strip = document.getElementById("dayStrip");
+DAYS.forEach((d,i)=>{
+  const b = document.createElement("button");
+  b.className = "day-pill" + (i===0 ? " active" : "");
+  b.textContent = d;
+  b.type = "button";
+  b.addEventListener("click", ()=>{
+    strip.querySelectorAll(".day-pill").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    state.day = d;
+    renderDay();
+  });
+  strip.appendChild(b);
+});
+
+function bmiCategory(bmi){
+  if(bmi < 18.5) return "Kurus";
+  if(bmi < 25) return "Ideal";
+  if(bmi < 30) return "Gemuk";
+  return "Obesitas";
+}
+
+function updateKcalSummary(mealChecked, mealTimes){
+  const kcalMap = KCAL[state.goal];
+  let done = 0;
+  mealTimes.forEach(t=>{ if(mealChecked[t]) done += kcalMap[t]; });
+  document.getElementById("kcalDone").textContent = done;
+  document.getElementById("kcalTarget").textContent = state.targetKcal || "–";
+  const pct = state.targetKcal ? Math.min(100, (done/state.targetKcal)*100) : 0;
+  document.getElementById("kcalBarFill").style.width = pct + "%";
+}
+
+async function renderDay(){
+  const w = WORKOUTS[state.goal][state.day];
+  const m = MEALS[state.goal][state.day];
+  const kcalMap = KCAL[state.goal];
+
+  document.getElementById("workoutDurTag").textContent = state.day + " · Latihan";
+  document.getElementById("workoutTitle").textContent = w.dur;
+
+  const saved = await storageGet(progressKey(state.goal, state.day)) || { workout: [], meals: {} };
+
+  // workout checklist
+  const wrap = document.getElementById("workoutList");
+  wrap.innerHTML = "";
+  w.items.forEach((it, idx)=>{
+    const row = document.createElement("label");
+    row.className = "check-row" + (saved.workout[idx] ? " done" : "");
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = !!saved.workout[idx];
+    const txt = document.createElement("span");
+    txt.className = "txt";
+    txt.textContent = it;
+    row.appendChild(cb); row.appendChild(txt);
+    cb.addEventListener("change", async ()=>{
+      row.classList.toggle("done", cb.checked);
+      const current = await storageGet(progressKey(state.goal, state.day)) || { workout: [], meals: {} };
+      current.workout[idx] = cb.checked;
+      await storageSet(progressKey(state.goal, state.day), current);
+      updateWorkoutProgress(current.workout, w.items.length);
+    });
+    wrap.appendChild(row);
+  });
+  updateWorkoutProgress(saved.workout, w.items.length);
+
+  // meal checklist
+  const mealWrap = document.getElementById("mealList");
+  mealWrap.innerHTML = "";
+  MEAL_TIMES.forEach(t=>{
+    const row = document.createElement("label");
+    row.className = "check-row meal-row" + (saved.meals[t] ? " done" : "");
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = !!saved.meals[t];
+    const icon = document.createElement("span");
+    icon.className = "meal-icon";
+    icon.textContent = MEAL_ICON[t];
+    const body = document.createElement("span");
+    body.className = "meal-body";
+    const time = document.createElement("span");
+    time.className = "meal-time";
+    time.textContent = t;
+    const desc = document.createElement("span");
+    desc.className = "meal-desc";
+    desc.textContent = m[t];
+    body.appendChild(time); body.appendChild(desc);
+    const kcal = document.createElement("span");
+    kcal.className = "meal-kcal";
+    kcal.textContent = kcalMap[t] + " kkal";
+    row.appendChild(cb); row.appendChild(icon); row.appendChild(body); row.appendChild(kcal);
+    cb.addEventListener("change", async ()=>{
+      row.classList.toggle("done", cb.checked);
+      const current = await storageGet(progressKey(state.goal, state.day)) || { workout: [], meals: {} };
+      current.meals[t] = cb.checked;
+      await storageSet(progressKey(state.goal, state.day), current);
+      updateKcalSummary(current.meals, MEAL_TIMES);
+    });
+    mealWrap.appendChild(row);
+  });
+  updateKcalSummary(saved.meals, MEAL_TIMES);
+}
+
+function updateWorkoutProgress(workoutArr, total){
+  const done = (workoutArr || []).filter(Boolean).length;
+  document.getElementById("workoutProgress").innerHTML = "<b>" + done + " dari " + total + "</b> latihan sudah dicentang selesai";
+}
+
+document.getElementById("resetWorkout").addEventListener("click", async ()=>{
+  const current = await storageGet(progressKey(state.goal, state.day)) || { workout: [], meals: {} };
+  current.workout = [];
+  await storageSet(progressKey(state.goal, state.day), current);
+  renderDay();
+});
+document.getElementById("resetMeal").addEventListener("click", async ()=>{
+  const current = await storageGet(progressKey(state.goal, state.day)) || { workout: [], meals: {} };
+  current.meals = {};
+  await storageSet(progressKey(state.goal, state.day), current);
+  renderDay();
+});
+
+async function computeAndShow(){
+  const nama = document.getElementById("nama").value.trim() || "kamu";
+  const umur = parseFloat(document.getElementById("umur").value);
+  const berat = parseFloat(document.getElementById("berat").value);
+  const tinggi = parseFloat(document.getElementById("tinggi").value);
+  const err = document.getElementById("errMsg");
+
+  if(!umur || !berat || !tinggi || umur<10 || umur>90 || berat<20 || tinggi<100){
+    err.style.display = "block";
+    return;
+  }
+  err.style.display = "none";
+
+  await storageSet("profile", {
+    nama, umur, berat, tinggi, gender: state.gender, activity: state.activity, goal: state.goal
+  });
+
+  const tinggiM = tinggi/100;
+  const bmi = berat/(tinggiM*tinggiM);
+  const cat = bmiCategory(bmi);
+  const idealMin = Math.round(18.5*tinggiM*tinggiM*10)/10;
+  const idealMax = Math.round(24.9*tinggiM*tinggiM*10)/10;
+
+  const bmr = state.gender === "L"
+    ? 10*berat + 6.25*tinggi - 5*umur + 5
+    : 10*berat + 6.25*tinggi - 5*umur - 161;
+  const tdee = bmr * state.activity;
+  const target = state.goal === "turun" ? Math.round(tdee-500) : Math.round(tdee+400);
+  state.targetKcal = target;
+
+  document.getElementById("namaOut").textContent = nama;
+  document.getElementById("bmiVal").textContent = bmi.toFixed(1);
+  document.getElementById("bmiCat").textContent = "BMI · " + cat;
+  document.getElementById("idealVal").textContent = idealMin + "–" + idealMax;
+  document.getElementById("tdeeVal").textContent = Math.round(tdee);
+  document.getElementById("targetVal").textContent = target;
+  document.getElementById("targetCap").textContent = state.goal==="turun" ? "Target kalori (defisit)" : "Target kalori (surplus)";
+
+  const pin = document.getElementById("gaugePin");
+  const pct = Math.min(100, Math.max(0, ((bmi-15)/(35-15))*100));
+  pin.style.left = pct + "%";
+  pin.dataset.val = bmi.toFixed(1);
+
+  await renderDay();
+
+  document.getElementById("results").style.display = "block";
+  document.getElementById("results").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+document.getElementById("btnHitung").addEventListener("click", computeAndShow);
+
+// ---------- muat profil tersimpan saat halaman dibuka ----------
+(async function init(){
+  const hint = document.getElementById("storageHint");
+  const profile = await storageGet("profile");
+  if(profile){
+    document.getElementById("nama").value = profile.nama || "";
+    document.getElementById("umur").value = profile.umur || "";
+    document.getElementById("berat").value = profile.berat || "";
+    document.getElementById("tinggi").value = profile.tinggi || "";
+    state.gender = profile.gender || "L";
+    state.activity = profile.activity || 1.2;
+    state.goal = profile.goal || "turun";
+    setActivePill("genderSet", state.gender);
+    setActivePill("activitySet", state.activity);
+    setActivePill("goalSet", state.goal);
+    hint.textContent = "Data terakhirmu otomatis dimuat kembali. Ubah dan tekan tombol di atas kalau ada yang berubah.";
+    computeAndShow();
+  } else {
+    hint.textContent = "Setelah kamu tekan tombol di atas, data dan centanganmu akan tersimpan otomatis di perangkat ini.";
+  }
+})();
+</script>
+</body>
+</html>
